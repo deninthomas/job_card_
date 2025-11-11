@@ -15,7 +15,7 @@ export async function GET(
         if (auth instanceof NextResponse) return auth;
 
         const { id } = await params;
-        const workOrder = await WorkOrder.findById(id);
+        const workOrder = await WorkOrder.findById(id).populate('created_by');
         
         if (!workOrder) {
             return NextResponse.json(

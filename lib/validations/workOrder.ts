@@ -27,6 +27,7 @@ export const materialEntrySchema = z.object({
     unit_price: z.number().min(0, "Unit price must be positive"),
     amount: z.number().min(0, "Amount must be positive"),
     supplier: z.string().optional(),
+    diamentions: z.string().optional(),
 });
 
 // ✅ Order Detail
@@ -64,6 +65,14 @@ export const totalSchema = z.object({
     grand_total: z.number().optional(),
 });
 
+
+export const documentSchema = z.object({
+    id: z.string().uuid(),
+    file_name: z.string().min(1, "Filename is required"),
+    file_type: z.string(),
+    s3_path: z.string().min(1, "S3 path is required"),
+});
+
 // ---- Main Schema ----
 export const workOrderSchema = z.object({
     order_number: z.string().min(1, "Order number is required"),
@@ -73,6 +82,7 @@ export const workOrderSchema = z.object({
     order_detail: orderDetailSchema.optional(),
     job_info: jobInfoSchema.optional(),
     approval: approvalSchema.optional(),
+    documents: z.array(documentSchema).optional(),
     total: totalSchema.optional(),
 });
 

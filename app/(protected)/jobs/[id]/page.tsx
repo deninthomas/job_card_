@@ -56,11 +56,11 @@ export default function WorkOrderDetailPage() {
       setIsLoading(true);
       const response = await fetch(`/api/work-order/${workOrderId}`);
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.error || "Failed to fetch work order");
       }
-      
+
       setWorkOrder(data.data);
     } catch (error: any) {
       console.error("Error fetching work order:", error);
@@ -78,9 +78,12 @@ export default function WorkOrderDetailPage() {
     try {
       setActionLoading(action);
 
-      const response = await fetch(`/api/work-order/${workOrderId}/${endpoint}`, {
-        method: "PATCH",
-      });
+      const response = await fetch(
+        `/api/work-order/${workOrderId}/${endpoint}`,
+        {
+          method: "PATCH",
+        }
+      );
 
       const data = await response.json();
 
@@ -96,6 +99,17 @@ export default function WorkOrderDetailPage() {
     } finally {
       setActionLoading(null);
     }
+  };
+
+  const printJobCard = async () => {
+    const res = await fetch(`/api/work-order/${workOrderId}/job-card`);
+    const data = await res.blob();
+    const url = window.URL.createObjectURL(new Blob([data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `job-card-${workOrderId}.pdf`);
+    document.body.appendChild(link);
+    link.click();
   };
 
   if (isLoading) {
@@ -126,9 +140,9 @@ export default function WorkOrderDetailPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => router.push("/jobs")}
                 className="hover:bg-gray-100"
               >
@@ -144,13 +158,21 @@ export default function WorkOrderDetailPage() {
                 </p>
               </div>
             </div>
-            <StatusBadge status={currentStatus} className="text-base px-4 py-2" />
+            <StatusBadge
+              status={currentStatus}
+              className="text-base px-4 py-2"
+            />
+            <Button
+              onClick={printJobCard}
+              className="flex items-center gap-2 shadow-md"
+            >
+              print
+            </Button>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-
         {/* Workflow Timeline */}
         <Card className="border-0 shadow-lg">
           <CardContent className="p-8">
@@ -216,12 +238,20 @@ export default function WorkOrderDetailPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Name</p>
-                <p className="text-base font-semibold text-gray-900">{workOrder.client?.name}</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Name
+                </p>
+                <p className="text-base font-semibold text-gray-900">
+                  {workOrder.client?.name}
+                </p>
               </div>
               <div className="space-y-1">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Code</p>
-                <p className="text-base font-mono text-gray-700">{workOrder.client?.code}</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Code
+                </p>
+                <p className="text-base font-mono text-gray-700">
+                  {workOrder.client?.code}
+                </p>
               </div>
               {workOrder.client?.contact_info?.phone && (
                 <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
@@ -232,7 +262,9 @@ export default function WorkOrderDetailPage() {
               {workOrder.client?.contact_info?.email && (
                 <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
                   <Mail className="h-4 w-4 text-gray-400" />
-                  <span className="truncate">{workOrder.client.contact_info.email}</span>
+                  <span className="truncate">
+                    {workOrder.client.contact_info.email}
+                  </span>
                 </div>
               )}
             </CardContent>
@@ -254,7 +286,9 @@ export default function WorkOrderDetailPage() {
                   <User className="h-4 w-4 text-gray-400 mt-0.5" />
                   <div>
                     <p className="text-xs text-gray-500">Received By</p>
-                    <p className="text-sm font-medium">{workOrder.order_detail.received_by}</p>
+                    <p className="text-sm font-medium">
+                      {workOrder.order_detail.received_by}
+                    </p>
                   </div>
                 </div>
               )}
@@ -264,7 +298,9 @@ export default function WorkOrderDetailPage() {
                   <div>
                     <p className="text-xs text-gray-500">Order Date</p>
                     <p className="text-sm font-medium">
-                      {new Date(workOrder.order_detail.order_date).toLocaleDateString()}
+                      {new Date(
+                        workOrder.order_detail.order_date
+                      ).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -275,7 +311,9 @@ export default function WorkOrderDetailPage() {
                   <div>
                     <p className="text-xs text-gray-500">Start Date</p>
                     <p className="text-sm font-medium">
-                      {new Date(workOrder.order_detail.job_start_date).toLocaleDateString()}
+                      {new Date(
+                        workOrder.order_detail.job_start_date
+                      ).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -286,7 +324,9 @@ export default function WorkOrderDetailPage() {
                   <div>
                     <p className="text-xs text-gray-500">Promised Date</p>
                     <p className="text-sm font-medium">
-                      {new Date(workOrder.order_detail.date_promised).toLocaleDateString()}
+                      {new Date(
+                        workOrder.order_detail.date_promised
+                      ).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -307,7 +347,9 @@ export default function WorkOrderDetailPage() {
             <CardContent className="space-y-4">
               {workOrder.job_info?.priority && (
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</p>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Priority
+                  </p>
                   <span
                     className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                       workOrder.job_info.priority === "high"
@@ -323,20 +365,27 @@ export default function WorkOrderDetailPage() {
               )}
               {workOrder.job_info?.type && (
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Type</p>
-                  <p className="text-base font-semibold text-gray-900">{workOrder.job_info.type}</p>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Type
+                  </p>
+                  <p className="text-base font-semibold text-gray-900">
+                    {workOrder.job_info.type}
+                  </p>
                 </div>
               )}
               {workOrder.job_info?.description && (
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Description</p>
-                  <p className="text-sm text-gray-700 leading-relaxed">{workOrder.job_info.description}</p>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Description
+                  </p>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    {workOrder.job_info.description}
+                  </p>
                 </div>
               )}
             </CardContent>
           </Card>
         </div>
-
 
         {/* Labour Entries */}
         <Card className="border-0 shadow-lg">
@@ -355,43 +404,51 @@ export default function WorkOrderDetailPage() {
             {workOrder.labour_entry && workOrder.labour_entry.length > 0 ? (
               <div className="overflow-x-auto">
                 <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Employee</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Hours</TableHead>
-                  <TableHead>Cost/Hour</TableHead>
-                  <TableHead>Total Cost</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {workOrder.labour_entry.map((entry: any, index: number) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      {entry.date ? new Date(entry.date).toLocaleDateString() : "-"}
-                    </TableCell>
-                    <TableCell>
-                      {entry.employee
-                        ? `${entry.employee.first_name} ${entry.employee.last_name}`
-                        : "Unknown"}
-                    </TableCell>
-                    <TableCell>{entry.description || "-"}</TableCell>
-                    <TableCell>{entry.hours || 0}</TableCell>
-                    <TableCell>₹{(entry.cost_per_hour || 0).toFixed(2)}</TableCell>
-                    <TableCell className="font-medium">
-                      ₹{(entry.total_cost || 0).toFixed(2)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-                </TableBody>
-              </Table>
-            </div>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Employee</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Hours</TableHead>
+                      <TableHead>Cost/Hour</TableHead>
+                      <TableHead>Total Cost</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {workOrder.labour_entry.map((entry: any, index: number) => (
+                      <TableRow key={index}>
+                        <TableCell>
+                          {entry.date
+                            ? new Date(entry.date).toLocaleDateString()
+                            : "-"}
+                        </TableCell>
+                        <TableCell>
+                          {entry.employee
+                            ? `${entry.employee.first_name} ${entry.employee.last_name}`
+                            : "Unknown"}
+                        </TableCell>
+                        <TableCell>{entry.description || "-"}</TableCell>
+                        <TableCell>{entry.hours || 0}</TableCell>
+                        <TableCell>
+                          ₹{(entry.cost_per_hour || 0).toFixed(2)}
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          ₹{(entry.total_cost || 0).toFixed(2)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             ) : (
               <div className="text-center py-12">
                 <User className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500 font-medium">No labour entries yet</p>
-                <p className="text-sm text-gray-400">Click "Add Labour" to get started</p>
+                <p className="text-gray-500 font-medium">
+                  No labour entries yet
+                </p>
+                <p className="text-sm text-gray-400">
+                  Click "Add Labour" to get started
+                </p>
               </div>
             )}
           </CardContent>
@@ -414,37 +471,43 @@ export default function WorkOrderDetailPage() {
             {workOrder.material_entry && workOrder.material_entry.length > 0 ? (
               <div className="overflow-x-auto">
                 <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Quantity</TableHead>
-                  <TableHead>Unit</TableHead>
-                  <TableHead>Unit Price</TableHead>
-                  <TableHead>Supplier</TableHead>
-                  <TableHead>Amount</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {workOrder.material_entry.map((entry, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{entry.description || "-"}</TableCell>
-                    <TableCell>{entry.quantity || 0}</TableCell>
-                    <TableCell>{entry.unit || "-"}</TableCell>
-                    <TableCell>₹{(entry.unit_price || 0).toFixed(2)}</TableCell>
-                    <TableCell>{entry.supplier || "-"}</TableCell>
-                    <TableCell className="font-medium">
-                      ₹{(entry.amount || 0).toFixed(2)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-                </TableBody>
-              </Table>
-            </div>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Quantity</TableHead>
+                      <TableHead>Unit</TableHead>
+                      <TableHead>Unit Price</TableHead>
+                      <TableHead>Supplier</TableHead>
+                      <TableHead>Amount</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {workOrder.material_entry.map((entry, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{entry.description || "-"}</TableCell>
+                        <TableCell>{entry.quantity || 0}</TableCell>
+                        <TableCell>{entry.unit || "-"}</TableCell>
+                        <TableCell>
+                          ₹{(entry.unit_price || 0).toFixed(2)}
+                        </TableCell>
+                        <TableCell>{entry.supplier || "-"}</TableCell>
+                        <TableCell className="font-medium">
+                          ₹{(entry.amount || 0).toFixed(2)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             ) : (
               <div className="text-center py-12">
                 <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500 font-medium">No material entries yet</p>
-                <p className="text-sm text-gray-400">Click "Add Material" to get started</p>
+                <p className="text-gray-500 font-medium">
+                  No material entries yet
+                </p>
+                <p className="text-sm text-gray-400">
+                  Click "Add Material" to get started
+                </p>
               </div>
             )}
           </CardContent>
@@ -453,7 +516,9 @@ export default function WorkOrderDetailPage() {
         {/* Financial Summary */}
         <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-600 to-blue-700 text-white">
           <CardHeader>
-            <CardTitle className="text-white text-xl">Financial Summary</CardTitle>
+            <CardTitle className="text-white text-xl">
+              Financial Summary
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -517,8 +582,12 @@ export default function WorkOrderDetailPage() {
                     <User className="h-4 w-4 text-yellow-600" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Approved By</p>
-                    <p className="text-base font-semibold text-gray-900">{workOrder.approval.approved_by}</p>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Approved By
+                    </p>
+                    <p className="text-base font-semibold text-gray-900">
+                      {workOrder.approval.approved_by}
+                    </p>
                   </div>
                 </div>
               )}
@@ -528,9 +597,13 @@ export default function WorkOrderDetailPage() {
                     <Calendar className="h-4 w-4 text-yellow-600" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Approved Date</p>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Approved Date
+                    </p>
                     <p className="text-base font-semibold text-gray-900">
-                      {new Date(workOrder.approval.approved_at).toLocaleDateString()}
+                      {new Date(
+                        workOrder.approval.approved_at
+                      ).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -541,8 +614,12 @@ export default function WorkOrderDetailPage() {
                     <FileText className="h-4 w-4 text-yellow-600" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Remarks</p>
-                    <p className="text-base text-gray-700 leading-relaxed">{workOrder.approval.remarks}</p>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Remarks
+                    </p>
+                    <p className="text-base text-gray-700 leading-relaxed">
+                      {workOrder.approval.remarks}
+                    </p>
                   </div>
                 </div>
               )}
@@ -577,4 +654,3 @@ export default function WorkOrderDetailPage() {
     </div>
   );
 }
-

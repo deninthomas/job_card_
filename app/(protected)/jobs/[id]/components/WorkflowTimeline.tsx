@@ -118,6 +118,7 @@ export function WorkflowTimeline({
     });
   };
 
+  console.log({currentStatus, currentIndex});
   return (
     <div className="relative py-8">
       {/* Timeline Line */}
@@ -202,9 +203,10 @@ export function WorkflowTimeline({
                 )}
 
                 {/* Action Button for Current Stage */}
-                {current && !completed && (
+                {console.log({status :stage.status, current, completed})}
+               
                   <div className="mt-3">
-                    {stage.status === "checked" && onCheck && (
+                    {stage.status === currentStatus && onCheck && (
                       <Button
                         size="sm"
                         onClick={onCheck}
@@ -215,7 +217,7 @@ export function WorkflowTimeline({
                         {actionLoading === "check" ? "Checking..." : "Check Order"}
                       </Button>
                     )}
-                    {stage.status === "approved" && onApprove && (
+                    {stage.status === currentStatus && onApprove && (
                       <Button
                         size="sm"
                         onClick={onApprove}
@@ -226,7 +228,7 @@ export function WorkflowTimeline({
                         {actionLoading === "approve" ? "Approving..." : "Approve"}
                       </Button>
                     )}
-                    {stage.status === "completed" && onComplete && (
+                    {stage.status === currentStatus && onComplete && (
                       <Button
                         size="sm"
                         onClick={onComplete}
@@ -237,7 +239,7 @@ export function WorkflowTimeline({
                         {actionLoading === "complete" ? "Completing..." : "Complete"}
                       </Button>
                     )}
-                    {stage.status === "delivered" && onDeliver && (
+                    {stage.status === currentStatus && onDeliver && (
                       <Button
                         size="sm"
                         onClick={onDeliver}
@@ -249,7 +251,7 @@ export function WorkflowTimeline({
                       </Button>
                     )}
                   </div>
-                )}
+              
               </div>
 
               {/* Connecting Line for Mobile */}

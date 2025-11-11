@@ -30,6 +30,7 @@ export default function MaterialEntryStep({ form }: MaterialEntryStepProps) {
       unit_price: 0,
       amount: 0,
       supplier: "",
+      diamentions: "",
     });
   };
 
@@ -56,10 +57,7 @@ export default function MaterialEntryStep({ form }: MaterialEntryStepProps) {
       )}
 
       {fields.map((field, index) => (
-        <div
-          key={field.id}
-          className="border rounded-lg p-4 mb-4 space-y-4"
-        >
+        <div key={field.id} className="border rounded-lg p-4 mb-4 space-y-4">
           <div className="flex justify-between items-center mb-2">
             <h4 className="font-medium">Material Entry #{index + 1}</h4>
             <Button
@@ -121,6 +119,13 @@ export default function MaterialEntryStep({ form }: MaterialEntryStepProps) {
               {...register(`material_entry.${index}.supplier`)}
               error={errors.material_entry?.[index]?.supplier}
               placeholder="Enter supplier (optional)"
+            />
+
+            <FormField
+              label="Diamentions"
+              {...register(`material_entry.${index}.diamentions`)}
+              error={errors.material_entry?.[index]?.diamentions}
+              placeholder="Enter diamentions (optional)"
             />
           </div>
         </div>

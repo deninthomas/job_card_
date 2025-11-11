@@ -10,6 +10,7 @@ import LabourEntryStep from "./LabourEntryStep";
 import MaterialEntryStep from "./MaterialEntryStep";
 import ReviewAndSubmitStep from "./ReviewAndSubmitStep";
 import { Button } from "@/components/ui/button";
+import { DocumentUpload } from "./DocumentUpload";
 
 type WorkOrderFormData = z.infer<typeof workOrderSchema>;
 
@@ -18,7 +19,10 @@ interface WorkOrderFormProps {
   onSuccess?: () => void;
 }
 
-export default function WorkOrderForm({ onSubmit, onSuccess }: WorkOrderFormProps) {
+export default function WorkOrderForm({
+  onSubmit,
+  onSuccess,
+}: WorkOrderFormProps) {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,7 +43,9 @@ export default function WorkOrderForm({ onSubmit, onSuccess }: WorkOrderFormProp
         order_date: new Date().toISOString().split("T")[0],
         order_time: "09:00",
         job_start_date: new Date().toISOString().split("T")[0],
-        date_promised: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+        date_promised: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0],
         date_delivered: "",
       },
       job_info: {
@@ -50,6 +56,7 @@ export default function WorkOrderForm({ onSubmit, onSuccess }: WorkOrderFormProp
       },
       labour_entry: [],
       material_entry: [],
+      documents: [],
     },
     mode: "onChange",
   });
@@ -76,6 +83,8 @@ export default function WorkOrderForm({ onSubmit, onSuccess }: WorkOrderFormProp
         return true;
       case 4:
         // Review step - validate all
+        return true;
+      case 5:
         return await trigger();
       default:
         return true;
@@ -90,7 +99,7 @@ export default function WorkOrderForm({ onSubmit, onSuccess }: WorkOrderFormProp
   const nextStep = async () => {
     const isValid = await validateStep(step);
     if (isValid) {
-      setStep((prev) => Math.min(prev + 1, 4));
+      setStep((prev) => Math.min(prev + 1, 5));
     }
   };
 
@@ -101,25 +110,20 @@ export default function WorkOrderForm({ onSubmit, onSuccess }: WorkOrderFormProp
   const handleSubmit = async (data: WorkOrderFormData) => {
     try {
       setIsSubmitting(true);
-      
+
       console.log("Submitting form data:", data);
-      
+
       // Calculate totals
-      const total_labour_hours = data.labour_entry?.reduce(
-        (sum, entry) => sum + entry.hours,
-        0
-      ) || 0;
-      
-      const total_labour_cost = data.labour_entry?.reduce(
-        (sum, entry) => sum + entry.total_cost,
-        0
-      ) || 0;
-      
-      const total_material_cost = data.material_entry?.reduce(
-        (sum, entry) => sum + entry.amount,
-        0
-      ) || 0;
-      
+      const total_labour_hours =
+        data.labour_entry?.reduce((sum, entry) => sum + entry.hours, 0) || 0;
+
+      const total_labour_cost =
+        data.labour_entry?.reduce((sum, entry) => sum + entry.total_cost, 0) ||
+        0;
+
+      const total_material_cost =
+        data.material_entry?.reduce((sum, entry) => sum + entry.amount, 0) || 0;
+
       const grand_total = total_labour_cost + total_material_cost;
 
       const submitData = {
@@ -148,9 +152,11 @@ export default function WorkOrderForm({ onSubmit, onSuccess }: WorkOrderFormProp
         if (!response.ok) {
           const error = await response.json();
           console.error("API Error:", error);
-          throw new Error(JSON.stringify(error.error) || "Failed to create work order");
+          throw new Error(
+            JSON.stringify(error.error) || "Failed to create work order"
+          );
         }
-        
+
         const result = await response.json();
         console.log("Success:", result);
       }
@@ -174,7 +180,7 @@ export default function WorkOrderForm({ onSubmit, onSuccess }: WorkOrderFormProp
           {/* Step indicator */}
           <div className="mb-6">
             <div className="flex items-center justify-between">
-              {[1, 2, 3, 4].map((stepNum) => (
+              {[1, 2, 3, 4,5].map((stepNum) => (
                 <React.Fragment key={stepNum}>
                   <div className="flex items-center">
                     <div
@@ -190,10 +196,11 @@ export default function WorkOrderForm({ onSubmit, onSuccess }: WorkOrderFormProp
                       {stepNum === 1 && "Client & Order"}
                       {stepNum === 2 && "Labour"}
                       {stepNum === 3 && "Materials"}
-                      {stepNum === 4 && "Review"}
+                      {stepNum === 4 && "Documents"}
+                      {stepNum === 5 && "Review"}
                     </span>
                   </div>
-                  {stepNum < 4 && (
+                  {stepNum < 5 && (
                     <div
                       className={`flex-1 h-1 mx-2 ${
                         step > stepNum ? "bg-blue-600" : "bg-gray-200"
@@ -209,7 +216,8 @@ export default function WorkOrderForm({ onSubmit, onSuccess }: WorkOrderFormProp
             {step === 1 && <ClientAndOrderDetailsStep form={form} />}
             {step === 2 && <LabourEntryStep form={form} />}
             {step === 3 && <MaterialEntryStep form={form} />}
-            {step === 4 && <ReviewAndSubmitStep form={form} />}
+            {step === 4 && <DocumentUpload form={form} />}
+            {step === 5 && <ReviewAndSubmitStep form={form} />}
           </div>
 
           <div className="sticky bottom-0 bg-background border-t pt-4 pb-6 mt-8 -mx-6 px-6 flex justify-between gap-4 z-10 shadow-lg">
@@ -220,14 +228,18 @@ export default function WorkOrderForm({ onSubmit, onSuccess }: WorkOrderFormProp
             ) : (
               <div></div>
             )}
-            {step < 4 ? (
-              <Button type="button" onClick={nextStep} className="min-w-[100px]">
+            {step < 5? (
+              <Button
+                type="button"
+                onClick={nextStep}
+                className="min-w-[100px]"
+              >
                 Next
               </Button>
             ) : (
-              <Button 
-                type="submit" 
-                disabled={isSubmitting} 
+              <Button
+                type="submit"
+                disabled={isSubmitting}
                 className="min-w-[100px]"
                 onClick={() => {
                   console.log("Submit button clicked");

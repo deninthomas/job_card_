@@ -71,14 +71,16 @@ export interface IWorkOrder extends Document {
     material_entry: IMaterialEntry[];
     order_detail: IOrderDetail;
     job_info: IJobInfo;
-    approval:IApproval;
+    approval: IApproval;
     total: ITotal;
     // Estimate-related fields
     estimate_id?: Schema.Types.ObjectId;
     has_estimate: boolean;
     estimate_amount?: number;
+    documents?: Schema.Types.ObjectId[];
     created_by?: Schema.Types.ObjectId;
     is_deleted?: boolean;
+
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -133,9 +135,9 @@ const JobInfoSchema = new Schema<IJobInfo>({
 
 
 const ApprovalSchema = new Schema<IApproval>({
-    approved_by: String,
+    approved_by: { type: Schema.Types.ObjectId, ref: "User" },
     approved_at: String,
-    delivered_by: String,
+    delivered_by: { type: Schema.Types.ObjectId, ref: "User" },
     delivered_at: String,
     delivered_on_time: Boolean,
     remarks: String,
@@ -163,7 +165,8 @@ const WorkOrderSchema = new Schema<IWorkOrder>({
     has_estimate: { type: Boolean, default: false },
     estimate_amount: { type: Number },
     created_by: { type: Schema.Types.ObjectId, ref: "User" },
-    is_deleted: { type: Boolean, default: false }
+    is_deleted: { type: Boolean, default: false },
+    documents: [{ type: Schema.Types.ObjectId, ref: "Document" }]
 }, { timestamps: true })
 
 export default models.WorkOrder || mongoose.model<IWorkOrder>("WorkOrder", WorkOrderSchema);
